@@ -21,8 +21,8 @@ import java.util.*;
 import java.util.zip.*;
 
 import org.apache.tools.ant.*;
-import org.mockito.asm.*;
 import org.mockito.cglib.core.*;
+import org.mockito.asm.*;
 
 abstract public class AbstractTransformTask extends AbstractProcessTask {
     private static final int ZIP_MAGIC = 0x504B0304;
@@ -62,7 +62,7 @@ abstract public class AbstractTransformTask extends AbstractProcessTask {
 
         } else {
             
-            log("ignoring " + file.toURL(), Project.MSG_WARN);
+            log("ignoring " + file.toURI(), Project.MSG_WARN);
             
         }
     }
@@ -79,12 +79,13 @@ abstract public class AbstractTransformTask extends AbstractProcessTask {
 
         ClassReader reader = getClassReader(file);
         String name[] = ClassNameReader.getClassInfo(reader);
-        ClassWriter w = new DebuggingClassWriter(ClassWriter.COMPUTE_MAXS);
+        DebuggingClassWriter w =
+        	new DebuggingClassWriter(ClassWriter.COMPUTE_MAXS);
         ClassTransformer t = getClassTransformer(name);
         if (t != null) {
 
             if (verbose) {
-                log("processing " + file.toURL());
+                log("processing " + file.toURI());
             }
             new TransformingClassGenerator(new ClassReaderGenerator(
                     getClassReader(file), attributes(), getFlags()), t)
@@ -124,7 +125,7 @@ abstract public class AbstractTransformTask extends AbstractProcessTask {
     protected void processJarFile(File file) throws Exception {
 
         if (verbose) {
-            log("processing " + file.toURL());
+            log("processing " + file.toURI());
         }
         
         File tempFile = File.createTempFile(file.getName(), null, new File(file
@@ -133,7 +134,7 @@ abstract public class AbstractTransformTask extends AbstractProcessTask {
             
             ZipInputStream zip = new ZipInputStream(new FileInputStream(file));
             try {
-                FileOutputStream fout = new FileOutputStream(tempFile, false);
+                FileOutputStream fout = new FileOutputStream(tempFile);
                 try{
                  ZipOutputStream out = new ZipOutputStream(fout);
                                 
@@ -217,7 +218,8 @@ abstract public class AbstractTransformTask extends AbstractProcessTask {
 
         ClassReader reader = new ClassReader(new ByteArrayInputStream(bytes));
         String name[] = ClassNameReader.getClassInfo(reader);
-        ClassWriter w = new DebuggingClassWriter(ClassWriter.COMPUTE_MAXS);
+        DebuggingClassWriter w =
+        	new DebuggingClassWriter(ClassWriter.COMPUTE_MAXS);
         ClassTransformer t = getClassTransformer(name);
         if (t != null) {
             if (verbose) {

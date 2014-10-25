@@ -32,5 +32,6 @@ interface CallbackGenerator
         int getIndex(MethodInfo method);
         void emitCallback(CodeEmitter ce, int index);
         Signature getImplSignature(MethodInfo method);
+        void emitInvoke(CodeEmitter e, MethodInfo method);
     }
 }
