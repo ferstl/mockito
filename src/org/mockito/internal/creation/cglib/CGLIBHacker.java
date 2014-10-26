@@ -20,10 +20,12 @@ public class CGLIBHacker implements Serializable {
             Field createInfoField = reflectOnCreateInfo(methodProxy);
             createInfoField.setAccessible(true);
             Object createInfo = createInfoField.get(methodProxy);
-            Field namingPolicyField = createInfo.getClass().getDeclaredField("namingPolicy");
-            namingPolicyField.setAccessible(true);
-            if (namingPolicyField.get(createInfo) == null) {
-                namingPolicyField.set(createInfo, MockitoNamingPolicy.INSTANCE);
+            if (createInfo != null) {
+              Field namingPolicyField = createInfo.getClass().getDeclaredField("namingPolicy");
+              namingPolicyField.setAccessible(true);
+              if (namingPolicyField.get(createInfo) == null) {
+                  namingPolicyField.set(createInfo, MockitoNamingPolicy.INSTANCE);
+              }
             }
         } catch (Exception e) {
             throw new RuntimeException(
