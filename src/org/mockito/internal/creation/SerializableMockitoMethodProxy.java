@@ -7,11 +7,12 @@ package org.mockito.internal.creation;
 import java.io.Serializable;
 
 import org.mockito.cglib.proxy.MethodProxy;
+import org.mockito.cglib.reflect.FastClass;
 import org.mockito.internal.util.reflection.Whitebox;
 
 public class SerializableMockitoMethodProxy extends AbstractMockitoMethodProxy implements Serializable {
 
-    private static final long serialVersionUID = -5337859962876770632L;
+    private static final long serialVersionUID = -8869440102413620466L;
     private final Class<?> c1;
     private final Class<?> c2;
     private final String desc;
@@ -20,13 +21,22 @@ public class SerializableMockitoMethodProxy extends AbstractMockitoMethodProxy i
     private transient MethodProxy methodProxy;
 
     public SerializableMockitoMethodProxy(MethodProxy methodProxy) {
-        Object info = Whitebox.getInternalState(methodProxy, "createInfo");
-        c1 = (Class<?>) Whitebox.getInternalState(info, "c1");
-        c2 = (Class<?>) Whitebox.getInternalState(info, "c2");
+        this.methodProxy = methodProxy;
         desc = methodProxy.getSignature().getDescriptor();
         name = methodProxy.getSignature().getName();
         superName = methodProxy.getSuperName();
-        this.methodProxy = methodProxy;
+      
+        Object createInfo = Whitebox.getInternalState(methodProxy, "createInfo");
+        if (createInfo != null) {
+            c1 = (Class<?>) Whitebox.getInternalState(createInfo, "c1");
+            c2 = (Class<?>) Whitebox.getInternalState(createInfo, "c2");
+        } else {
+            Object fcInfo = Whitebox.getInternalState(methodProxy, "fastClassInfo");
+            FastClass f1 = (FastClass) Whitebox.getInternalState(fcInfo, "f1");
+            FastClass f2 = (FastClass) Whitebox.getInternalState(fcInfo, "f2");
+            c1 = f1.getJavaClass();
+            c2 = f2.getJavaClass();
+        }
     }
 
     public MethodProxy getMethodProxy() {

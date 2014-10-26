@@ -40,6 +40,31 @@ public class SerializableMockitoMethodProxyTest extends TestBase {
         assertEquals("b", methodProxy.getSignature().getName());
         assertEquals("c", methodProxy.getSuperName());
     }
+    
+    @Test
+    public void shouldCreateCorrectWithFastClassInfo() throws Exception {
+      // given
+      MethodProxy proxy = MethodProxy.create(String.class, Integer.class, "a", "b", "c");
+      // trigger FastClass initialization
+      proxy.getSuperIndex();
+      assertNull(Whitebox.getInternalState(proxy, "createInfo"));
+      
+      SerializableMockitoMethodProxy serializableMockitoMethodProxy = new SerializableMockitoMethodProxy(proxy);
+      // trigger re-creation of methodProxy
+      Whitebox.setInternalState(serializableMockitoMethodProxy, "methodProxy", (Object) null);
+      assertNull(Whitebox.getInternalState(serializableMockitoMethodProxy, "methodProxy"));
+
+      // when
+      MethodProxy methodProxy = serializableMockitoMethodProxy.getMethodProxy();
+
+      // then
+      Object info = Whitebox.getInternalState(methodProxy, "createInfo");
+      assertEquals(String.class, Whitebox.getInternalState(info, "c1"));
+      assertEquals(Integer.class, Whitebox.getInternalState(info, "c2"));
+      assertEquals("a", methodProxy.getSignature().getDescriptor());
+      assertEquals("b", methodProxy.getSignature().getName());
+      assertEquals("c", methodProxy.getSuperName());
+    }
 
     @Override
     public String toString() {
