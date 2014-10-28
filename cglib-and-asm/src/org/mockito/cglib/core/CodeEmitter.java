@@ -478,6 +478,15 @@ public class CodeEmitter extends LocalVariablesSorter {
     public void super_invoke(Signature sig) {
         emit_invoke(Constants.INVOKESPECIAL, ce.getSuperType(), sig);
     }
+    
+    public void invoke_special(Type type, Signature sig) {
+      mv.visitMethodInsn(Constants.INVOKESPECIAL,
+          type.getInternalName(),
+          sig.getName(),
+          sig.getDescriptor(),
+          true);
+//        emit_invoke(Constants.INVOKESPECIAL, type, sig);
+    }
 
     public void invoke_constructor(Type type) {
         invoke_constructor(type, CSTRUCT_NULL);

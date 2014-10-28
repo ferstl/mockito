@@ -18,6 +18,7 @@ package org.mockito.cglib.proxy;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.*;
 
 import org.mockito.cglib.core.*;
@@ -464,6 +465,7 @@ public class Enhancer extends AbstractClassGenerator
                        & ~Constants.ACC_ABSTRACT
                        & ~Constants.ACC_NATIVE
                        & ~Constants.ACC_SYNCHRONIZED);
+
                 if (forcePublic.contains(MethodWrapper.create(method))) {
                     modifiers = (modifiers & ~Constants.ACC_PROTECTED) | Constants.ACC_PUBLIC;
                 }
@@ -472,7 +474,7 @@ public class Enhancer extends AbstractClassGenerator
         });
 
         ClassEmitter e = new ClassEmitter(v);
-        e.begin_class(Constants.V1_2,
+        e.begin_class(Constants.V1_8,
                       Constants.ACC_PUBLIC,
                       getClassName(),
                       Type.getType(sc),
@@ -965,7 +967,13 @@ public class Enhancer extends AbstractClassGenerator
                         e.checkcast(retType);
                     }
                 } else {
+                  boolean isDefaultMethod = Modifier.isInterface(method.getClassInfo().getModifiers())
+                      && (getOriginalModifiers(method) & (Modifier.ABSTRACT | Modifier.PUBLIC | Modifier.STATIC)) == Modifier.PUBLIC;
+                  if (isDefaultMethod) {
+                    e.invoke_special(method.getClassInfo().getType(), method.getSignature());
+                  } else {
                     e.super_invoke(method.getSignature());
+                  }
                 }
             }
             public CodeEmitter beginMethod(ClassEmitter ce, MethodInfo method) {
