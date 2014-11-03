@@ -970,7 +970,7 @@ public class Enhancer extends AbstractClassGenerator
                   boolean isDefaultMethod = Modifier.isInterface(method.getClassInfo().getModifiers())
                       && (getOriginalModifiers(method) & (Modifier.ABSTRACT | Modifier.PUBLIC | Modifier.STATIC)) == Modifier.PUBLIC;
                   if (isDefaultMethod) {
-                    e.invoke_special(method.getClassInfo().getType(), method.getSignature());
+                    e.default_invoke(method.getSignature());
                   } else {
                     e.super_invoke(method.getSignature());
                   }

@@ -17,6 +17,7 @@ package org.mockito.cglib.core;
 
 import java.io.*;
 import java.util.*;
+
 import org.mockito.asm.*;
 
 /**
@@ -479,13 +480,16 @@ public class CodeEmitter extends LocalVariablesSorter {
         emit_invoke(Constants.INVOKESPECIAL, ce.getSuperType(), sig);
     }
     
-    public void invoke_special(Type type, Signature sig) {
+    public void default_invoke(Signature sig) {
+      // Default methods have to be invoked on the closest interface in the hierarchy
+      // TODO: determine the right interface correctly without assuming it beeing the first one in the list.
+      Type iFace = ce.getClassInfo().getInterfaces()[0];
+      
       mv.visitMethodInsn(Constants.INVOKESPECIAL,
-          type.getInternalName(),
+          iFace.getInternalName(),
           sig.getName(),
           sig.getDescriptor(),
           true);
-//        emit_invoke(Constants.INVOKESPECIAL, type, sig);
     }
 
     public void invoke_constructor(Type type) {
